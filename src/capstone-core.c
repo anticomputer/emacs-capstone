@@ -210,9 +210,9 @@ Fcall_cs_disasm(emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
                                               1,
                                               &opcode_int);
             } else {
-                emacs_value cons_args[2];
-                cons_args[0] = cs_opcode_list;
-                cons_args[1] = env->make_integer(env, (uint8_t)insn[i].bytes[x]);
+                emacs_value cons_args[2]; 
+                cons_args[0] = env->make_integer(env, (uint8_t)insn[i].bytes[x]);
+                cons_args[1] = cs_opcode_list;
                 cs_opcode_list = env->funcall(env,
                                               env->intern(env, "cons"),
                                               2,
@@ -258,17 +258,17 @@ emacs_module_init(struct emacs_runtime *ert)
     emacs_env *env = ert->get_environment(ert);
     emacs_value fset_args[2];
 
-    /* bind capstone lambda()'s to intern'd symbols */
+        /* bind capstone lambda()'s to intern'd symbols */
 
-    /* cs_version:capstone--cs-version */
-    fset_args[0] = env->intern(env, "capstone--cs-version");
-    fset_args[1] = env->make_function(env,
-                                      0,
-                                      0,
-                                      Fcall_cs_version,
-                                      "Return combined cs api version",
-                                      NULL); 
-    env->funcall(env, env->intern(env, "fset"), 2, fset_args);
+        /* cs_version:capstone--cs-version */
+        fset_args[0] = env->intern(env, "capstone--cs-version");
+        fset_args[1] = env->make_function(env,
+                                          0,
+                                          0,
+                                          Fcall_cs_version,
+                                          "Return combined cs api version",
+                                          NULL); 
+        env->funcall(env, env->intern(env, "fset"), 2, fset_args);
 
     /* cs_support:capstone--cs-support */
     fset_args[0] = env->intern(env, "capstone--cs-support");
