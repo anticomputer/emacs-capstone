@@ -50,6 +50,7 @@ Off you go.
 ```
 
 ```
+*** Welcome to IELM ***  Type (describe-mode) for help.
 ELISP> (require 'emacs-capstone)
 emacs-capstone
 ELISP> (capstone-example-use)
@@ -63,13 +64,10 @@ ELISP> (capstone-example-use)
       (204)
       "int3" "")
  (326 3735929057 3
-      (((82)
-	. 79)
-       . 43)
+      (43 79 82)
       "sub" "ecx, dword ptr [rdi + 0x52]"))
 
-ELISP> 
-
+ELISP>
 ...
 capstone disassembled: 0xdeadc0de: int3 
 capstone disassembled: 0xdeadc0df: ret 
