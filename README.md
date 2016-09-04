@@ -19,11 +19,19 @@ a series of tests to ensure everything is working as epxected.
 
 ## Installing
 
-1) Build the module, then add the emacs-capstone directory to your emacs load path.
+### Step one
 
-2) ```lisp (require 'emacs-capstone) ```
+Build the module, then add the emacs-capstone directory to your emacs load path.
 
-3) Off you go.
+### Step two
+
+```lisp 
+(require 'emacs-capstone) 
+```
+
+### Step three 
+
+Off you go.
 
 ## Example
 
