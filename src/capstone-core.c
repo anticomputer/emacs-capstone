@@ -2,7 +2,7 @@
 
 This is an emacs25 module providing an elisp interface into the libcapstone 
 disassembly engine (http://www.capstone-engine.org). Hopefully you'll find
-it use for it in your travels.
+use for it in your travels.
 
 - bas@collarchoke.org 09/04/2016
 
@@ -197,7 +197,7 @@ Fcall_cs_disasm(emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
         emacs_value cs_insn_list;
         emacs_value cs_opcode_list = env->intern(env, "nil");
         
-        /*  skipping cs_detail for now ... their python bindings don't support it either */
+        /*  skipping cs_detail for now */
         cs_insn_args[0] = env->make_integer(env, insn[i].id);
         cs_insn_args[1] = env->make_integer(env, insn[i].address);
         cs_insn_args[2] = env->make_integer(env, insn[i].size);
@@ -247,8 +247,7 @@ Fcall_cs_disasm(emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
 
     /* we're done at the native layer with this stuff, so free it */
     cs_free(insn, ret);
-    
-    /* this is in reverse order, deal with in lisp layer */
+
     return cs_insn_list_list;
 }
 

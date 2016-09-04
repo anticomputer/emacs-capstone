@@ -16,7 +16,7 @@ Your emacs25 needs to be built with module support, `configure --with-modules`
 ## Building
 
 Edit the Makefile to match your environment and run `make`, this will also run
-a series of tests to ensure everything is working as epxected.
+a series of tests to ensure everything is working as expected.
 
 ## Installing
 
