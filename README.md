@@ -2,7 +2,8 @@
 
 This is a set of elisp bindings for the capstone dissassembly library[1].
 Provided because I think emacs has everything it needs to be a decent
-ASM navigation platform.
+ASM navigation platform. This relies on the new native module support
+in emacs version 25.
 
 ## Dependencies
 
