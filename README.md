@@ -7,22 +7,21 @@ ASM navigation platform.
 ## Dependencies
 
 Tested with capstone 3.0.4, install the libcapstone library on your system
-and make sure you run `ldconfig' after install so it can be found by the
+and make sure you run `ldconfig` after install so it can be found by the
 linker.
 
-Your emacs25 needs to be built with module support, `configure --with-modules'
+Your emacs25 needs to be built with module support, `configure --with-modules`
 
 ## Building
 
-
-Edit the Makefile to match your environment and run `make', this will also run
+Edit the Makefile to match your environment and run `make`, this will also run
 a series of tests to ensure everything is working as epxected.
 
 ## Installing
 
 1) Build the module, then add the emacs-capstone directory to your emacs load path.
 
-2) (require 'emacs-capstone).
+2) ```lisp (require 'emacs-capstone) ```
 
 3) Off you go.
 
