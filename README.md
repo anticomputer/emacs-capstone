@@ -41,6 +41,35 @@ a series of tests to ensure everything is working as epxected.
     disas))
 ```
 
+```
+ELISP> (require 'emacs-capstone)
+emacs-capstone
+ELISP> (capstone-example-use)
+((224 3735929054 1
+      (204)
+      "int3" "")
+ (149 3735929055 1
+      (195)
+      "ret" "")
+ (224 3735929056 1
+      (204)
+      "int3" "")
+ (326 3735929057 3
+      (((82)
+	. 79)
+       . 43)
+      "sub" "ecx, dword ptr [rdi + 0x52]"))
+
+ELISP> 
+
+...
+capstone disassembled: 0xdeadc0de: int3 
+capstone disassembled: 0xdeadc0df: ret 
+capstone disassembled: 0xdeadc0e0: int3 
+capstone disassembled: 0xdeadc0e1: sub ecx, dword ptr [rdi + 0x52]
+...
+```
+
 ## TODO
 
 emacs-capstone does not support the capstone detail API yet, because I didn't need
