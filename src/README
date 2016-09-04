@@ -1,0 +1,6 @@
+In case you want to port to a different release of capstone, included is a patch
+for the const generator that adds elisp constants generation support. The
+capstone const generator lives in capstone-version/bindings/const_generator.py.
+Note that you will also have to mkdir the `elisp' directory in bindings/ before
+you run the patched version of the script. Normally you shouldn't have to touch
+this.
