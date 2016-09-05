@@ -18,6 +18,19 @@ Your emacs25 needs to be built with module support, `configure --with-modules`
 Edit the Makefile to match your environment and run `make`, this will also run
 a series of tests to ensure everything is working as expected.
 
+```
+[bas@coven emacs-capstone]$ make
+gcc -std=gnu99 -ggdb3 -O2 -Wall -fPIC -I/home/bas/emacs_src/emacs/src -I/usr/include/capstone -c -o capstone-core.o src/capstone-core.c
+gcc -shared -L . -o capstone-core.so capstone-core.o -lcapstone
+emacs -Q -batch -L . -l src/test/test.el -f ert-run-tests-batch-and-exit
+Running 1 tests (2016-09-04 21:09:06-0400)
+   passed  1/1  test-capstone-core-x86
+
+Ran 1 tests, 1 results as expected (2016-09-04 21:09:06-0400)
+
+[bas@coven emacs-capstone]$ 
+```
+
 ## Installing
 
 ### Step one
