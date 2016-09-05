@@ -222,6 +222,25 @@
   "Using capstone instance HANDLE, return name of a group GROUP_ID that an instruction can belong to, in a string"
   (capstone--cs-group-name handle group_id))
 
+;; note: start looking into the bindat lib for parsing maybe
+(defun capstone-file-to-vector (file)
+  "Transform binary FILE into a vector of bytes"
+  (with-temp-buffer
+    (insert-file-contents-literally file)
+    (goto-char (point-min))
+    ;; allocate a vector of buffer-size bytes and populate it
+    (let ((byte-vec (make-vector (buffer-size) 0))
+          (i 0))
+      (while (not (eobp))
+        (let* ((byte (char-after)))
+          ;; literal buffer char types are signed, apparently
+          ;; so we explicitly grab the lower 8 bits here from
+          ;; it's number form
+          (aset byte-vec i (logand byte #xff))
+          (forward-char 1)
+          (setq i (+ i 1))))
+      byte-vec)))
+
 ;; below are convenience functions for people that are scared of handling pointers direct ;)
 ;; I'll add more "safe" wrappers as I go along, all archs are already supported through
 ;; the "unsafe" API above
