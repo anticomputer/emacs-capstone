@@ -235,9 +235,11 @@
          (disas (if handle
                     (capstone-disasm handle code address count)
                   nil)))
-    ;; we have a valid handle, but disas failed
-    (when (and (not disas) handle)
-      (message "capstone-disasm-x86 failed, last error: %s" (capstone-last-error handle)))
+    ;; disas failed, see if we can report why
+    (unless disas
+      (if handle
+          (message "capstone-disasm-x86 failed, last error: %s" (capstone-last-error handle))
+        (message "capstone-disasm-x86 failed, no valid handle")))
     ;; we have a handle so we have to close it
     (when handle
       (capstone-close handle))
