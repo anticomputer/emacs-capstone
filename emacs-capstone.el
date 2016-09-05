@@ -226,6 +226,7 @@
 ;; I'll add more "safe" wrappers as I go along, all archs are already supported through
 ;; the "unsafe" API above
 
+;;; TODO: turn this into a multi-arch macro instead
 (defun capstone-disasm-x86 (code address count)
   "Disassemble the uint8_t integer vector CODE at base ADDRESS for COUNT instructions (0 for all), returns a list of capstone-insn structs or nil"
   (let* ((handle (capstone-open
@@ -234,10 +235,12 @@
          (disas (if handle
                     (capstone-disasm handle code address count)
                   nil)))
-    (unless (not handle)
+    ;; we have a valid handle, but disas failed
+    (when (and (not disas) handle)
+      (message "capstone-disasm-x86 failed, last error: %s" (capstone-last-error handle)))
+    ;; we have a handle so we have to close it
+    (when handle
       (capstone-close handle))
-    (unless disas
-      (message "capstone-disasm-x86 failed, last error: %s" capstone-last-error))
     disas))
 
 ;;; demo functions
