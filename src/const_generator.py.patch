@@ -1,79 +1,89 @@
---- capstone-3.0.4/bindings/const_generator.py	2015-07-15 03:44:42.000000000 -0400
-+++ capstone-3.0.4-elisp/bindings/const_generator.py	2016-09-03 00:02:37.973839759 -0400
-@@ -59,6 +59,24 @@ template = {
-             'comment_open': '(*',
-             'comment_close': ' *)',
-         },
-+    'elisp': {
-+            'header': ";;; For Capstone Engine. AUTO-GENERATED FILE, DO NOT EDIT [%s-const.el]\n",
-+            'footer': "\n(provide '%s-const)\n",
-+            'line_format': '(defconst capstone-%s %s)\n',
-+            'out_file': './elisp/%s-const.el',
-+            # prefixes for constant filenames of all archs - case sensitive
-+            'arm.h': 'arm',
-+            'arm64.h': 'arm64',
-+            'mips.h': 'mips',
-+            'x86.h': 'x86',
-+            'ppc.h': 'ppc',
-+            'sparc.h': 'sparc',
-+            'systemz.h': 'sysz',
-+            'xcore.h': 'xcore',
-+            'comment_open': ';;',
-+            'comment_close': '',
-+        },
-+
- }
- 
- # markup for comments to be added to autogen files
-@@ -95,6 +113,7 @@ def gen(lang):
-                 if not t or t.startswith('//'): continue
-                 f = re.split('\s+', t)
- 
-+
-                 if f[0].startswith(prefix.upper()):
-                     if len(f) > 1 and f[1] not in '//=':
-                         print("Error: Unable to convert %s" % f)
-@@ -118,9 +137,34 @@ def gen(lang):
-                             if rhs[0].isalpha():
-                                 rhs = '_' + rhs
- 
-+                        # convert to elisp hex literal notation
-+                        elif lang == 'elisp':
-+                            left_shift_or_match = re.match(r"^\((.*?)<<(.*?)\)\|(.*?)$", rhs)
-+                            left_shift_match = re.match(r"^(.*?)<<(.*?)$", rhs)
-+                            hex_match = re.match(r"^0x(.*?)$", rhs)
-+                            if hex_match:
-+                                rhs = "#x%s" % hex_match.group(1)
-+                            elif left_shift_or_match:
-+                                rhs = "(logior (lsh %s %s) %s)" %\
-+                                (left_shift_or_match.group(1),
-+                                 left_shift_or_match.group(2),
-+                                 left_shift_or_match.group(3))
-+                            elif left_shift_match:
-+                                rhs = "(lsh %s %s)" % (left_shift_match.group(1),
-+                                                       left_shift_match.group(2))
-+                            elif '+' in rhs:
-+                                rhs = "(+ %s)" % ' '.join(str(x) for x in rhs.split('+'))
-+                            elif rhs[0].isalpha():
-+                                rhs = "capstone-%s" % rhs
-+
-                     outfile.write(templ['line_format'] %(f[0].strip(), rhs))
- 
--        outfile.write(templ['footer'])
-+        if lang == 'elisp':
-+            # provide the constants
-+            outfile.write(templ['footer'] % (prefix))
-+        else:
-+            outfile.write(templ['footer'])
-+
-         outfile.close()
- 
- def main():
-@@ -131,6 +175,6 @@ def main():
- 
- if __name__ == "__main__":
-     if len(sys.argv) < 2:
--        print("Usage:", sys.argv[0], " <bindings: java|python|ocaml>")
-+        print("Usage:", sys.argv[0], " <bindings: java|python|ocaml|elisp>")
-         sys.exit(1)
-     main()
+*** ./capstone-3.0.4/bindings/const_generator.py	2015-07-15 03:44:42.000000000 -0400
+--- ./capstone-3.0.4-elisp/bindings/const_generator.py	2016-09-04 20:36:15.727534222 -0400
+***************
+*** 59,64 ****
+--- 59,82 ----
+              'comment_open': '(*',
+              'comment_close': ' *)',
+          },
++     'elisp': {
++             'header': ";;; For Capstone Engine. AUTO-GENERATED FILE, DO NOT EDIT [%s-const.el]\n",
++             'footer': "\n(provide '%s-const)\n",
++             'line_format': '(defconst capstone-%s %s)\n',
++             'out_file': './elisp/%s-const.el',
++             # prefixes for constant filenames of all archs - case sensitive
++             'arm.h': 'arm',
++             'arm64.h': 'arm64',
++             'mips.h': 'mips',
++             'x86.h': 'x86',
++             'ppc.h': 'ppc',
++             'sparc.h': 'sparc',
++             'systemz.h': 'sysz',
++             'xcore.h': 'xcore',
++             'comment_open': ';;',
++             'comment_close': '',
++         },
++ 
+  }
+  
+  # markup for comments to be added to autogen files
+***************
+*** 95,100 ****
+--- 113,119 ----
+                  if not t or t.startswith('//'): continue
+                  f = re.split('\s+', t)
+  
++ 
+                  if f[0].startswith(prefix.upper()):
+                      if len(f) > 1 and f[1] not in '//=':
+                          print("Error: Unable to convert %s" % f)
+***************
+*** 118,126 ****
+--- 137,168 ----
+                              if rhs[0].isalpha():
+                                  rhs = '_' + rhs
+  
++                         # convert to elisp hex literal notation
++                         elif lang == 'elisp':
++                             rhs = rhs.replace("0x", "#x")
++                             left_shift_or_match = re.match(r"^\((.*?)<<(.*?)\)\|(.*?)$", rhs)
++                             left_shift_match = re.match(r"^(.*?)<<(.*?)$", rhs)
++                             if left_shift_or_match:
++                                 rhs = "(logior (lsh %s %s) %s)" %\
++                                 (left_shift_or_match.group(1),
++                                  left_shift_or_match.group(2),
++                                  left_shift_or_match.group(3))
++                             elif left_shift_match:
++                                 rhs = "(lsh %s %s)" % (left_shift_match.group(1),
++                                                        left_shift_match.group(2))
++                             elif '+' in rhs:
++                                 rhs = "(+ %s)" % ' '.join(str(x) for x in rhs.split('+'))
++                             elif rhs[0].isalpha():
++                                 rhs = "capstone-%s" % rhs
++ 
+                      outfile.write(templ['line_format'] %(f[0].strip(), rhs))
+  
++         if lang == 'elisp':
++             # provide the constants
++             outfile.write(templ['footer'] % (prefix))
++         else:
+              outfile.write(templ['footer'])
++ 
+          outfile.close()
+  
+  def main():
+***************
+*** 131,136 ****
+  
+  if __name__ == "__main__":
+      if len(sys.argv) < 2:
+!         print("Usage:", sys.argv[0], " <bindings: java|python|ocaml>")
+          sys.exit(1)
+      main()
+--- 173,178 ----
+  
+  if __name__ == "__main__":
+      if len(sys.argv) < 2:
+!         print("Usage:", sys.argv[0], " <bindings: java|python|ocaml|elisp>")
+          sys.exit(1)
+      main()
