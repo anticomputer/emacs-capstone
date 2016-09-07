@@ -52,12 +52,12 @@ Off you go.
 ```lisp
 (defun capstone-example-use ()
   "Just a little demo function to show the API in use"
-  (let ((disas (capstone-disasm-x86 [ #xcc #xc3 #xcc #x2b #x4f #x52 ] #xdeadc0de 0)))
+  (let ((disas (capstone-disasm-x86 [ #xcc #xc3 #xcc ] #xdeadc0de 0)))
     (dolist (insn disas)
-      (setq insn (capstone-insn insn)) ; transform to struct for convenience
-      (let ((mnemonic (struct-capstone-insn-mnemonic insn))
-            (operands (struct-capstone-insn-op_str insn))
-            (address (struct-capstone-insn-address insn)))
+      (let* ((insn (capstone-insn insn)) ; transform to struct form
+             (mnemonic (struct-capstone-insn-mnemonic insn))
+             (operands (struct-capstone-insn-op_str insn))
+             (address (struct-capstone-insn-address insn)))
         (message "capstone disassembled: 0x%x: %s %s" address mnemonic operands)))
     disas))
 ```

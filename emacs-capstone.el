@@ -245,35 +245,83 @@
 ;; I'll add more "safe" wrappers as I go along, all archs are already supported through
 ;; the "unsafe" API above
 
-;;; TODO: turn this into a multi-arch macro instead
-(defun capstone-disasm-x86 (code address count)
-  "Disassemble the uint8_t integer vector CODE at base ADDRESS for COUNT instructions (0 for all), returns a list of capstone-insn structs or nil"
-  (let* ((handle (capstone-open
-                  capstone-CS_ARCH_X86
-                  capstone-CS_MODE_LITTLE_ENDIAN))
-         (disas (if handle
-                    (capstone-disasm handle code address count)
-                  nil)))
-    ;; disas failed, see if we can report why
-    (unless disas
-      (if handle
-          (message "capstone-disasm-x86 failed, last error: %s" (capstone-last-error handle))
-        (message "capstone-disasm-x86 failed, no valid handle")))
-    ;; we have a handle so we have to close it
-    (when handle
-      (capstone-close handle))
-    disas))
+(defmacro* capstone-with-disasm ((code start count arch mode)
+                                 disas-sym
+                                 &body body)
+  "A macro to provide a generic interface to all supported archs, BODY will have available ,DISAS-SYM for the list of disassembled opcodes in CODE at START address for COUNT number of ARCH in MODE instructions (0 for all)"
+
+  ;; use uninterned local symbols so we don't collide with anything used in BODY scope obarray
+  (let ((handle (make-symbol "handle"))
+        (disas (make-symbol "disas")))
+
+    `(let* ((mode (or ,mode capstone-CS_MODE_LITTLE_ENDIAN))
+            (,handle ,(ecase arch
+                        (:x86
+                         '(capstone-open
+                           capstone-CS_ARCH_X86
+                           mode))
+                        (:arm
+                         '(capstone-open
+                           capstone-CS_ARCH_ARM
+                           mode))
+                        (:arm64
+                         '(capstone-open
+                           capstone-CS_ARCH_ARM64
+                           mode))
+                        (:sparc
+                         '(capstone-open
+                           capstone-CS_ARCH_SPARC
+                           mode))
+                        (:ppc
+                         '(capstone-open
+                           capstone-CS_ARCH_PPC
+                           mode))
+                        (:xcore
+                         '(capstone-open
+                           capstone-CS_ARCH_XCORE
+                           mode))
+                        (:sysz
+                         '(capstone-open
+                           capstone-CS_ARCH_SYSZ
+                           mode))
+                        (:mips
+                         '(capstone-open
+                           capstone-CS_ARCH_MIPS
+                           mode))
+                        ))
+            (,disas (if ,handle
+                        (capstone-disasm ,handle ,code ,start ,count)
+                      nil)))
+       ;; handle fail or no results
+       (if (not ,disas)
+           (progn
+             (if ,handle
+                 (progn
+                   (message "capstone-disasm %s failed (no results), last error: %s"
+                            ,arch (capstone-last-error ,handle))
+                   (capstone-close ,handle))
+               (message "capstoned-disasm %s failed (no results), invalid handle"))
+             nil)
+         (let ((,disas-sym ,disas))
+           ,@body)) ; keep last eval of BODY as result eval
+       )))
+
+(defun capstone-disasm-x86 (code start count)
+  (capstone-with-disasm (code start count :x86 nil) ; default mode is little endian
+                        disas ; bind results to this symbol name for body
+                        disas ; eval through to raw results in BODY
+                        ))
 
 ;;; demo functions
 
 (defun capstone-example-use ()
   "Just a little demo function to show the API in use"
-  (let ((disas (capstone-disasm-x86 [ #xcc #xc3 #xcc #x2b #x4f #x52 ] #xdeadc0de 0)))
+  (let ((disas (capstone-disasm-x86 [ #xcc #xc3 #xcc ] #xdeadc0de 0)))
     (dolist (insn disas)
-      (setq insn (capstone-insn insn)) ; transform to struct for convenience
-      (let ((mnemonic (struct-capstone-insn-mnemonic insn))
-            (operands (struct-capstone-insn-op_str insn))
-            (address (struct-capstone-insn-address insn)))
+      (let* ((insn (capstone-insn insn)) ; transform to struct form
+             (mnemonic (struct-capstone-insn-mnemonic insn))
+             (operands (struct-capstone-insn-op_str insn))
+             (address (struct-capstone-insn-address insn)))
         (message "capstone disassembled: 0x%x: %s %s" address mnemonic operands)))
     disas))
 
