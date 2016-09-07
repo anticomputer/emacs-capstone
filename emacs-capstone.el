@@ -243,14 +243,13 @@
 ;; I'll add more "safe" wrappers as I go along, all archs are already supported through
 ;; the "unsafe" API above
 
-(defmacro* capstone-with-disasm ((code start count arch mode)
-                                 disas-sym
+(defmacro* capstone-with-disasm ((disas-sym code start count arch mode)
                                  &body body)
   "A macro to provide a generic interface to all supported archs, BODY will have available ,DISAS-SYM for the list of disassembled opcodes in CODE at START address for COUNT number of ARCH in MODE instructions (0 for all)"
 
   ;; use uninterned local symbols so we don't collide with anything used in BODY scope obarray
-  (let ((handle (make-symbol "handle"))
-        (disas (make-symbol "disas")))
+  (let ((handle (gensym "handle"))
+        (disas (gensym "disas")))
 
     `(let* ((mode (or ,mode capstone-CS_MODE_LITTLE_ENDIAN))
             (,handle ,(ecase arch
@@ -307,9 +306,10 @@
        )))
 
 (defun capstone-disasm-x86 (code start count)
-  (capstone-with-disasm (code start count :x86 nil) ; default mode is little endian
-                        disas ; bind results to this symbol name for body
-                        disas ; eval through to raw results in BODY
+  (capstone-with-disasm (disas            ; bind results to this symbol for BODY
+                         code start count ; main args
+                         :x86 nil)        ; default mode is little endian
+                        disas             ; eval through to raw results in BODY
                         ))
 
 ;;; demo functions

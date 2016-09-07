@@ -1,10 +1,10 @@
-EMACS_SRC 	?= $(HOME)/emacs_src/emacs
+EMACS_SRC	?= $(HOME)/emacs_src/emacs
 CAPSTONE_INC	?= /usr/include/capstone
-EMACS 		?= emacs
-CC      	= gcc
-LD      	= gcc
+EMACS		?= emacs
+CC		= gcc
+LD		= gcc
 LDFLAGS		= -L .
-CFLAGS 		= -std=gnu99 -ggdb3 -O2 -Wall -fPIC -I$(EMACS_SRC)/src -I$(CAPSTONE_INC)
+CFLAGS		= -std=gnu99 -ggdb3 -O2 -Wall -fPIC -I$(EMACS_SRC)/src -I$(CAPSTONE_INC)
 
 all: test
 
