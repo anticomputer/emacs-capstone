@@ -234,9 +234,6 @@
           (i 0))
       (while (not (eobp))
         (let* ((byte (char-after)))
-          ;; literal buffer char types are signed, apparently
-          ;; so we explicitly grab the lower 8 bits here from
-          ;; it's number form
           (aset byte-vec i byte)
           (forward-char 1)
           (setq i (+ i 1))))
