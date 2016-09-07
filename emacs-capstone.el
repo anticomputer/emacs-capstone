@@ -302,8 +302,10 @@
                    (capstone-close ,handle))
                (message "capstoned-disasm %s failed (no results), invalid handle"))
              nil)
-         (let ((,disas-sym ,disas))
-           ,@body)) ; keep last eval of BODY as result eval
+         (progn
+           (capstone-close ,handle)
+           (let ((,disas-sym ,disas))
+             ,@body))) ; keep last eval of BODY as result eval
        )))
 
 (defun capstone-disasm-x86 (code start count)
