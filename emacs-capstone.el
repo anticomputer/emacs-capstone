@@ -226,6 +226,7 @@
 (defun capstone-file-to-vector (file)
   "Transform binary FILE into a vector of bytes"
   (with-temp-buffer
+    (set-buffer-multibyte nil) ; make sure we're a unibyte buffer
     (insert-file-contents-literally file)
     (goto-char (point-min))
     ;; allocate a vector of buffer-size bytes and populate it
@@ -236,7 +237,7 @@
           ;; literal buffer char types are signed, apparently
           ;; so we explicitly grab the lower 8 bits here from
           ;; it's number form
-          (aset byte-vec i (logand byte #xff))
+          (aset byte-vec i byte)
           (forward-char 1)
           (setq i (+ i 1))))
       byte-vec)))
