@@ -48,7 +48,7 @@ int plugin_is_GPL_compatible;
 #define _CS_FLOAT(val) env->make_float(env, val)
 #define _CS_PULL_FLOAT(val) env->extract_float(env, val)
 #define _CS_STRING(s, len) env->make_string(env, s, len)
-#define _CS_PULL_STRING(src, dst, len) env->copy_string_contents(src, dst, len)
+#define _CS_PULL_STRING(src, dst, len) env->copy_string_contents(env, src, dst, len)
 
 /* vector functions */
 #define _CS_VEC_SIZE(vec) env->vec_size(env, vec)
