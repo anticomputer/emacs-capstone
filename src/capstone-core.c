@@ -21,24 +21,48 @@ TODO: implement the cs detail API for more in depth code analysis support
 
 int plugin_is_GPL_compatible;
 
-/* got tired of typing "env" */
-#define _CS_INTERN(s) env->intern(env, s)
-#define _CS_NIL() _CS_INTERN("nil")
-#define _CS_INT(i) env->make_integer(env, i)
-#define _CS_PULL_INT(a) env->extract_integer(env, a)
-#define _CS_STRING(s, n) env->make_string(env, s, n) 
-#define _CS_VEC_SIZE(v) env->vec_size(env, v)
-#define _CS_VEC_GET(v, i) env->vec_get(env, v, i)
-#define _CS_MAKE_FUNC(min, max, c_func, doc, data) env->make_function(env, min, max, c_func, doc, data)
+/* memory management*/
+#define _CS_GREF(a) env->make_global_ref(env, a)
+#define _CS_FREE_GREF(g) env->free_global_ref(env, g)
 
+/* function registration */
+#define _CS_INTERN(s) env->intern(env, s)
+#define _CS_FUNC(min, max, c_func, doc, data) env->make_function(env, min, max, c_func, doc, data)
 /* this requires static arrays */
-#define _CS_FUNCALL(func, args)                                 \
-    ({                                                          \
-        env->funcall(env, env->intern(env, func),               \
-                     sizeof(args)/sizeof(emacs_value),          \
-                     args);                                     \
+#define _CS_FUNCALL(func, args)                         \
+    ({                                                  \
+        env->funcall(env, env->intern(env, func),       \
+                     sizeof(args)/sizeof(emacs_value),  \
+                     args);                             \
     })
 
+/* nil */
+#define _CS_NIL() _CS_INTERN("nil")
+
+/* type conversions */
+#define _CS_TYPE(val) env->type_of(env, val)
+#define _CS_NOT_NIL(val) env->is_not_nil(env, val)
+#define _CS_EQ(a, b) env->eq(env, a, b)
+#define _CS_INT(val) env->make_integer(env, val)
+#define _CS_PULL_INT(val) env->extract_integer(env, val)
+#define _CS_FLOAT(val) env->make_float(env, val)
+#define _CS_PULL_FLOAT(val) env->extract_float(env, val)
+#define _CS_STRING(s, len) env->make_string(env, s, len)
+#define _CS_PULL_STRING(src, dst, len) env->copy_string_contents(src, dst, len)
+
+/* vector functions */
+#define _CS_VEC_SIZE(vec) env->vec_size(env, vec)
+#define _CS_VEC_GET(vec, i) env->vec_get(env, vec, i)
+#define _CS_VEC_SET(vec, i, val) env->vec_set(env, vec, i, val)
+
+/* embedded pointers */
+#define _CS_UPTR(fin, ptr) env->make_user_ptr(env, fin, ptr)
+#define _CS_UPTR_GET(uptr) env->get_user_ptr(env, uptr)
+#define _CS_UPTR_SET(uptr, ptr) env->set_user_ptr(env, uptr, ptr)
+#define _CS_UFIN_GET(uptr) env->get_user_finalizer(env, uptr)
+#define _CS_UFIN_SET(uptr, fin) env->set_user_finalizer(env, uptr, fin)
+
+    
 static emacs_value
 Fcall_cs_version(emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
 {
@@ -271,7 +295,7 @@ bind(emacs_env *env, emacs_value (*c_func) (emacs_env *env,
     emacs_value fset_args[2];
     
     fset_args[0] = _CS_INTERN(e_func);
-    fset_args[1] = _CS_MAKE_FUNC(min_arity, max_arity, c_func, doc, data);
+    fset_args[1] = _CS_FUNC(min_arity, max_arity, c_func, doc, data);
     _CS_FUNCALL("fset", fset_args);
 }
 
@@ -348,14 +372,29 @@ emacs_module_init(struct emacs_runtime *ert)
     provide_args[0] = _CS_INTERN("capstone-core");
     _CS_FUNCALL("provide", provide_args); 
 
+#undef _CS_GREF
+#undef _CS_FREE_GREF
+#undef _CS_INTERN
+#undef _CS_FUNC
+#undef _CS_FUNCALL
+#undef _CS_NIL
+#undef _CS_TYPE
+#undef _CS_NOT_NIL
+#undef _CS_EQ
 #undef _CS_INT
 #undef _CS_PULL_INT
+#undef _CS_FLOAT
+#undef _CS_PULL_FLOAT
 #undef _CS_STRING
+#undef _CS_PULL_STRING
 #undef _CS_VEC_SIZE
 #undef _CS_VEC_GET
-#undef _CS_INTERN
-#undef _CS_NIL
-#undef _CS_MAKE_FUNC
+#undef _CS_VEC_SET
+#undef _CS_UPTR
+#undef _CS_UPTR_GET
+#undef _CS_UPTR_SET
+#undef _CS_UFIN_GET
+#undef _CS_UFIN_SET
     
     return 0;
 }
