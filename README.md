@@ -5,6 +5,8 @@ Provided because I think emacs has everything it needs to be a decent
 ASM navigation platform. This relies on the new native module support
 in emacs version 25.
 
+![emacs-capstone screenshot](screenshots/emacs-capstone.png?raw=true "emacs-capstone")
+
 ## Dependencies
 
 Tested with capstone 3.0.4, install the libcapstone library on your system
