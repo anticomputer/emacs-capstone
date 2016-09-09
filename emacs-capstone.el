@@ -352,7 +352,7 @@
 (defun capstone-file-to-buffer (file &optional buffer-name)
   "Load a _LARGE_ binary FILE into a unibyte buffer"
   (assert (stringp file))
-  (let ((buffer (generate-new-buffer (or buffer-name file))))
+  (let ((buffer (generate-new-buffer (generate-new-buffer-name (or buffer-name file)))))
     (with-current-buffer buffer
       (set-buffer-multibyte nil)
       (insert-file-contents-literally file)
@@ -381,7 +381,7 @@
 (defun capstone-create-output-buffer (buffer-name)
   "Create an output buffer of BUFFER-NAME"
   (assert (stringp buffer-name))
-  (let ((buffer (get-buffer-create buffer-name)))
+  (let ((buffer (get-buffer-create (generate-new-buffer-name buffer-name))))
     (unless buffer
       (message "capstone-create-output-buffer failed (%s)" buffer-name))
     buffer))
