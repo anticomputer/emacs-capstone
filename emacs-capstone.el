@@ -414,9 +414,10 @@
 
   (with-current-buffer input-buffer
     ;; XXX: fill this out for all archs
-    (let ((max-opcode-width (ecase arch (:x86 15)))
-          (keep-handle (capstone-open-arch arch mode))
-          (offset 0))
+    (let* ((max-opcode-width (ecase arch (:x86 15)))
+           (keep-handle (capstone-open-arch arch mode))
+           (offset 0)
+           (align-size max-opcode-width))
       (while (< offset (point-max))
         (let* ((bytes-left (- (point-max) (+ offset (point-min))))
                (max-opcode-width
@@ -456,7 +457,8 @@
                      ;; XXX: this will be replaced with proper formatting in the major mode
                      (format "0x%.8x: %s => %s %s"
                              address
-                             (mapconcat #'(lambda (x) (format "%.2x" x)) bytes " ")
+                             (concat (mapconcat #'(lambda (x) (format "%.2x" x)) bytes " ")
+                                     (make-string (* (- align-size size) 3) ?\ ))
                              mnemonic
                              operands)
                      output-buffer))
@@ -487,14 +489,6 @@
                        (:raw (capstone-file-to-buffer file (format "*%s-raw*" output-name))))
                      ))
     (capstone-disasm-buffer raw-buffer arch mode start output-buffer)
-    ;; XXX: this will be replaced with proper formatting in the major mode
-    ;; XXX: doing alignment this way is highly inefficient for large output buffers
-    (with-current-buffer output-buffer
-      (mark-whole-buffer)
-      (setq buffer-read-only nil)
-      (align-regexp (point-min) (point-max) "\\(\\s-*\\) =>" 1 1)
-      (setq buffer-read-only t)
-      (deactivate-mark))
     (when (bufferp raw-buffer)
       (kill-buffer raw-buffer))
     (switch-to-buffer output-buffer)))
