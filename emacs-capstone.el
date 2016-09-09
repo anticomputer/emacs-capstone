@@ -491,6 +491,8 @@
     (capstone-disasm-buffer raw-buffer arch mode start output-buffer)
     (when (bufferp raw-buffer)
       (kill-buffer raw-buffer))
+    (with-current-buffer output-buffer
+      (goto-char (point-min)))
     (switch-to-buffer output-buffer)))
 
 ;;; convenience wrappers
