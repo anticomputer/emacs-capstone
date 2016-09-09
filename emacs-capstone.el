@@ -202,6 +202,7 @@
      :id id
      :address address
      :size size
+     :bytes bytes
      :mnemonic mnemonic
      :op_str op_str)))
 
@@ -222,9 +223,8 @@
   "Using capstone instance HANDLE, return name of a group GROUP_ID that an instruction can belong to, in a string"
   (capstone--cs-group-name handle group_id))
 
-;; note: start looking into the bindat lib for parsing maybe
 (defun capstone-file-to-vector (file)
-  "Transform binary FILE into a vector of bytes"
+  "Transform a _SMALL_ binary FILE into a vector of bytes"
   (with-temp-buffer
     (set-buffer-multibyte nil) ; make sure we're a unibyte buffer
     (insert-file-contents-literally file)
@@ -239,6 +239,78 @@
           (setq i (+ i 1))))
       byte-vec)))
 
+(defun capstone-file-to-unibuf (file &optional buffer-name)
+  "Load binary FILE into a unibyte buffer"
+  (let ((buffer (generate-new-buffer (or buffer-name file))))
+    (with-current-buffer buffer
+      (set-buffer-multibyte nil)
+      (insert-file-contents-literally file)
+      (goto-char (point-min)))
+    buffer))
+
+(defun capstone-vector-from-unibuf (buffer offset count &optional filter)
+  "Return COUNT bytes from BUFFER starting at OFFSET from (point-min) as a vector"
+  (with-current-buffer buffer
+    (let ((filter-buffer-substring-function
+           (or filter ; default filter just returns the raw string
+               #'(lambda (start end &optional delete)
+                   (buffer-substring start end))))
+          (offset (+ offset (point-min))))
+      (if (> offset (point-max))
+          (progn
+            (message "capstone-from-unibuf, error: offset set beyond (point-max)")
+            nil)
+        (vconcat (filter-buffer-substring offset (+ offset count)))))))
+
+;; XXX: work in progress, carving out a template for buffer processing
+;; XXX: right now im thinking we will carve up the binary buffer based on
+;; XXX: binfmt parsing, then throw sections into dedicated section buffers
+;; XXX: and process those section buffers accordingly, and then glue the
+;; XXX: whole thing together with a major mode
+(defun capstone-disasm-buffer (input-buffer arch mode start &optional output-buffer)
+  "disasm buffer INPUT-BUFFER as ARCH in MODE instructions at START address, optionally output results OUTPUT-BUFFER"
+  (with-current-buffer input-buffer
+    ;; XXX: fill this out for all archs
+    (let ((max-opcode-width (ecase arch
+                              (:x86 15)))
+          (offset 0))
+      (while (< offset (point-max))
+        (let* ((bytes-left (- (point-max) (+ offset (point-min))))
+               (max-opcode-width
+                (if (< bytes-left max-opcode-width)
+                    bytes-left
+                  max-opcode-width))
+               (code (capstone-vector-from-unibuf
+                      input-buffer offset
+                      max-opcode-width)))
+          ;; XXX: need a "keep handle" version so we don't keep opening/closing
+          ;; XXX: will maybe just add cs_disas_iter support in the core and use
+          ;; XXX: the get_user_ptr API
+          (let* ((insn (capstone-with-disasm
+                        (disas
+                         (capstone-vector-from-unibuf input-buffer offset max-opcode-width)
+                         start 1
+                         arch
+                         mode)
+                        ;; BODY
+                        (if disas
+                            (let* ((insn (capstone-insn (car disas))))
+                              insn)
+                          nil))))
+            ;; outside of macro ... should prolly make an extract macro too
+            (if insn
+                (let* ((size (struct-capstone-insn-size insn))
+                       (mnemonic (struct-capstone-insn-mnemonic insn))
+                       (operands (struct-capstone-insn-op_str insn))
+                       (address (struct-capstone-insn-address insn))
+                       (bytes (struct-capstone-insn-bytes insn)))
+                  ;; XXX: for debugging
+                  (message "0x%x: %s: %s %s" address bytes mnemonic operands)
+                  (setq offset (+ offset size))
+                  (setq start (+ start size)))
+              (setq offset (point-max)))
+            ))))))
+
 ;; below are convenience functions for people that are scared of handling pointers direct ;)
 ;; I'll add more "safe" wrappers as I go along, all archs are already supported through
 ;; the "unsafe" API above
@@ -252,40 +324,40 @@
         (disas (gensym "disas")))
 
     `(let* ((mode (or ,mode capstone-CS_MODE_LITTLE_ENDIAN))
-            (,handle ,(ecase arch
-                        (:x86
-                         '(capstone-open
-                           capstone-CS_ARCH_X86
-                           mode))
-                        (:arm
-                         '(capstone-open
-                           capstone-CS_ARCH_ARM
-                           mode))
-                        (:arm64
-                         '(capstone-open
-                           capstone-CS_ARCH_ARM64
-                           mode))
-                        (:sparc
-                         '(capstone-open
-                           capstone-CS_ARCH_SPARC
-                           mode))
-                        (:ppc
-                         '(capstone-open
-                           capstone-CS_ARCH_PPC
-                           mode))
-                        (:xcore
-                         '(capstone-open
-                           capstone-CS_ARCH_XCORE
-                           mode))
-                        (:sysz
-                         '(capstone-open
-                           capstone-CS_ARCH_SYSZ
-                           mode))
-                        (:mips
-                         '(capstone-open
-                           capstone-CS_ARCH_MIPS
-                           mode))
-                        ))
+            (,handle (ecase ,arch
+                       (:x86
+                        (capstone-open
+                         capstone-CS_ARCH_X86
+                         mode))
+                       (:arm
+                        (capstone-open
+                         capstone-CS_ARCH_ARM
+                         mode))
+                       (:arm64
+                        (capstone-open
+                         capstone-CS_ARCH_ARM64
+                         mode))
+                       (:sparc
+                        (capstone-open
+                         capstone-CS_ARCH_SPARC
+                         mode))
+                       (:ppc
+                        (capstone-open
+                         capstone-CS_ARCH_PPC
+                         mode))
+                       (:xcore
+                        (capstone-open
+                         capstone-CS_ARCH_XCORE
+                         mode))
+                       (:sysz
+                        (capstone-open
+                         capstone-CS_ARCH_SYSZ
+                         mode))
+                       (:mips
+                        (capstone-open
+                         capstone-CS_ARCH_MIPS
+                         mode))
+                       ))
             (,disas (if ,handle
                         (capstone-disasm ,handle ,code ,start ,count)
                       nil)))
@@ -294,10 +366,10 @@
            (progn
              (if ,handle
                  (progn
-                   (message "capstone-disasm %s failed (no results), last error: %s"
+                   (message "capstone-disasm %s (no results), last error: %s"
                             ,arch (capstone-last-error ,handle))
                    (capstone-close ,handle))
-               (message "capstoned-disasm %s failed (no results), invalid handle"))
+               (message "capstoned-disasm %s failed, invalid handle"))
              nil)
          (progn
            (capstone-close ,handle)
