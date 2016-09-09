@@ -466,10 +466,11 @@
             )))
       (capstone-close keep-handle))))
 
-(defun capstone-disasm-raw-file (file arch &optional start mode)
+(defun capstone-disasm-file (file fmt arch &optional start mode)
   "Disassemble a binary opcode FILE of ARCH at START address in MODE (optional: default little endian)"
   (assert (and (stringp file) (file-exists-p file)))
   (assert (symbolp arch))
+  (assert (symbolp fmt))
   (when start
     (assert (integerp start)))
   (when mode
@@ -477,7 +478,14 @@
   (let* ((start (or start 0))
          (output-name (file-name-nondirectory file))
          (output-buffer (capstone-create-output-buffer (format "*%s-asm*" output-name)))
-         (raw-buffer (capstone-file-to-buffer file (format "*%s-raw*" output-name))))
+         ;; start shoehorning in binfmt support ... guessing I'll end up just creating a buffer
+         ;; per executable section for a given file-format, and then have a major-mode overview
+         ;; of the entire file that can switch-buffer accordingly to the desired section
+         ;; I'll propertize the output buffers to be linked to the actual cs details underneath
+         ;; that way we'll be set up to do integrated code analysis using the text surface layer
+         (raw-buffer (ecase fmt
+                       (:raw (capstone-file-to-buffer file (format "*%s-raw*" output-name))))
+                     ))
     (capstone-disasm-buffer raw-buffer arch mode start output-buffer)
     ;; XXX: this will be replaced with proper formatting in the major mode
     ;; XXX: doing alignment this way is highly inefficient for large output buffers
@@ -495,7 +503,7 @@
 
 (defun capstone-disasm-raw-file-x86 (file &optional start)
   (interactive "fPath to raw binary:\niStart address for listing: ")
-  (capstone-disasm-raw-file file :x86 start))
+  (capstone-disasm-file file :raw :x86 start))
 
 (defun capstone-disasm-x86 (code start count)
   (capstone-with-disasm (disas            ; bind results to this symbol for BODY
