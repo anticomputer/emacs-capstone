@@ -448,4 +448,4 @@
 (defconst capstone-SPARC_GRP_64BIT 134)
 (defconst capstone-SPARC_GRP_ENDING 135)
 
-(provide 'sparc-const)
+(provide 'capstone-sparc-const)

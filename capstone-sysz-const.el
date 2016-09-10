@@ -766,4 +766,4 @@
 (defconst capstone-SYSZ_GRP_LOADSTOREONCOND 132)
 (defconst capstone-SYSZ_GRP_ENDING 133)
 
-(provide 'sysz-const)
+(provide 'capstone-sysz-const)

@@ -172,4 +172,4 @@
 (defconst capstone-XCORE_GRP_JUMP 1)
 (defconst capstone-XCORE_GRP_ENDING 2)
 
-(provide 'xcore-const)
+(provide 'capstone-xcore-const)

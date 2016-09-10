@@ -765,4 +765,4 @@
 (defconst capstone-ARM_GRP_V6M 158)
 (defconst capstone-ARM_GRP_ENDING 159)
 
-(provide 'arm-const)
+(provide 'capstone-arm-const)

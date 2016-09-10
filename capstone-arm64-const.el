@@ -1042,4 +1042,4 @@
 (defconst capstone-ARM64_GRP_CRC 131)
 (defconst capstone-ARM64_GRP_ENDING 132)
 
-(provide 'arm64-const)
+(provide 'capstone-arm64-const)

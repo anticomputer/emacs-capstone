@@ -837,4 +837,4 @@
 (defconst capstone-MIPS_GRP_GP64BIT 160)
 (defconst capstone-MIPS_GRP_ENDING 161)
 
-(provide 'mips-const)
+(provide 'capstone-mips-const)

@@ -1685,4 +1685,4 @@
 (defconst capstone-X86_GRP_NOVLX 168)
 (defconst capstone-X86_GRP_ENDING 169)
 
-(provide 'x86-const)
+(provide 'capstone-x86-const)

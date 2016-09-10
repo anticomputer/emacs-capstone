@@ -1168,4 +1168,4 @@
 (defconst capstone-PPC_GRP_PPC6XX 137)
 (defconst capstone-PPC_GRP_ENDING 138)
 
-(provide 'ppc-const)
+(provide 'capstone-ppc-const)
