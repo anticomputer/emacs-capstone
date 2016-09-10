@@ -6,9 +6,9 @@
          },
 +    'elisp': {
 +            'header': ";;; For Capstone Engine. AUTO-GENERATED FILE, DO NOT EDIT [%s-const.el]\n",
-+            'footer': "\n(provide '%s-const)\n",
++            'footer': "\n(provide 'capstone-%s-const)\n",
 +            'line_format': '(defconst capstone-%s %s)\n',
-+            'out_file': './elisp/%s-const.el',
++            'out_file': './elisp/capstone-%s-const.el',
 +            # prefixes for constant filenames of all archs - case sensitive
 +            'arm.h': 'arm',
 +            'arm64.h': 'arm64',
