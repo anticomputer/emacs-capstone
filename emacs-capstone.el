@@ -160,8 +160,8 @@
 
 ;;; convenience wrappers, these are subject to change ...
 
-(defun capstone-disasm-file-x86 (file fmt &optional start)
-  (interactive "fPath to raw binary:\niStart address for listing: ")
+(defun capstone-disasm-file-x86 (file fmt start)
+  (interactive "fPath to raw binary: \nSbinary fmt (e.g. :raw): \nxStart address for listing (0 for binfmt parsing based): ")
   (capstone-disasm-file file fmt :x86 start))
 
 (defun capstone-disasm-x86 (code start count)

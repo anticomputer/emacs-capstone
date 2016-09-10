@@ -1,3 +1,4 @@
+(require 'cl)
 (require 'capstone-buffer)
 
 ;; a binfmt parser should return a list of the following structs for each section
