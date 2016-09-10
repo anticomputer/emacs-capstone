@@ -121,7 +121,7 @@
             )))
       (capstone-close keep-handle))))
 
-(defun capstone-disasm-file (file fmt arch &optional start mode)
+(defun capstone-disasm-file (file fmt arch &optional start mode toggle-hexl)
   "Disassemble a binary opcode FILE of ARCH at START address in MODE (optional: default little endian)"
   (assert (and (stringp file) (file-exists-p file)))
   (assert (symbolp arch))
@@ -143,6 +143,12 @@
              ;; use section provide address only if no user override
              (start (if (= start 0) base start)))
         (capstone-disasm-buffer raw-buffer arch mode start asm-buffer)
+        ;; optionally toggle raw buffer into hexl-mode
+        (when toggle-hexl
+          (with-current-buffer raw-buffer
+            (cl-letf (((symbol-function 'yes-or-no-p) #'(lambda (p) t))
+                      ((symbol-function 'y-or-n-p) #'(lambda (p) t)))
+              (hexl-mode)))) ; <3 emacs
         (with-current-buffer asm-buffer
           (goto-char (point-min)))
         (switch-to-buffer asm-buffer)
