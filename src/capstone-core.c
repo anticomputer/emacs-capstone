@@ -1,16 +1,16 @@
+
 /* 
 
-This is an emacs25 module providing an elisp interface into the libcapstone 
-disassembly engine (http://www.capstone-engine.org). Hopefully you'll find
-use for it in your travels.
+   This is an emacs25 module providing an elisp interface into the libcapstone 
+   disassembly engine (http://www.capstone-engine.org). Hopefully you'll find
+   use for it in your travels.
 
-- bas@collarchoke.org 09/04/2016
+   - bas@collarchoke.org 09/04/2016
 
-PS: I don't know how licenses work, whatever is the most free, apply that.
-
-TODO: implement the cs detail API for more in depth code analysis support
+   TODO: implement the cs detail API for more in depth code analysis support
 
 */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

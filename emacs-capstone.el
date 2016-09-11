@@ -1,13 +1,31 @@
-;;; elisp capstone API for the capstone-core emacs25 module
-;;;
-;;; Constants ported from the capstone Python bindings
-;;; which were written by Nguyen Anh Quynnh <aquynh@gmail.com>
-;;;
-;;; see `capstone-example-use' for a concise example of usage
-;;;
-;;; bas@collarchoke.org, 09/04/2016
-;;;
-;;; TODO: implement the cs detail API for more in depth code analysis support
+;;; emacs-capstone.el --- elisp API for the capstone dissassembler (https://www.capstone-engine.org)  -*- lexical-binding: t; -*-
+
+;; Copyright (C) 2016  Bas Alberts
+
+;; Author: Bas Alberts <bas@collarchoke.org>
+;; Keywords: convenience
+
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+;;; Commentary:
+
+;; Constants ported from the capstone Python bindings
+;; which were written by Nyugen Anh Quynnh <aquynh@gmail.com>
+
+;; TODO: implement the cs detail API
+
+;;; Code
 
 (require 'capstone-disasm) ; this pulls in everything we need
 
