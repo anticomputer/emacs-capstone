@@ -146,34 +146,38 @@
   (when mode
     (assert (integerp mode)))
   (let* ((start (or start 0))
-         (processed-section-list nil))
-    (capstone-with-sections
-     (sections file fmt)
-     ;; BODY ... walk the pulled sections and disassemble as required
-     (let ((i 0))
-       (dolist (section sections)
-         (let* ((label (struct-capstone-binfmt-section-label section))
-                (base (struct-capstone-binfmt-section-base section))
-                (size (struct-capstone-binfmt-section-size section))
-                (raw-buffer (struct-capstone-binfmt-section-raw section))
-                (notes (struct-capstone-binfmt-section-notes section))
-                (asm-buffer (capstone-create-output-buffer (format "*%s-asm*" label)))
-                ;; use section provide address only if no user override
-                (start (if (= start 0) base start)))
-           (capstone-disasm-buffer raw-buffer arch mode start asm-buffer)
-           ;; optionally toggle raw buffer into hexl-mode
-           (with-current-buffer asm-buffer
-             (goto-char (point-min)))
-           (switch-to-buffer asm-buffer)
-           (setf (nth i sections) (make-struct-capstone-binfmt-section
-                                   :label label
-                                   :base start ; relocate section as per user spec if needed
-                                   :size size
-                                   :raw raw-buffer
-                                   :asm asm-buffer
-                                   :notes notes)))
-         (setq i (+ i 1)))
-       sections)) ;; eval through to our now processed sections
+         (processed-sections
+          (capstone-with-sections
+           (sections file fmt)
+           ;; BODY ... walk the pulled sections and disassemble as required
+           (let ((i 0))
+             (dolist (section sections)
+               (let* ((label (struct-capstone-binfmt-section-label section))
+                      (base (struct-capstone-binfmt-section-base section))
+                      (size (struct-capstone-binfmt-section-size section))
+                      (raw-buffer (struct-capstone-binfmt-section-raw section))
+                      (notes (struct-capstone-binfmt-section-notes section))
+                      (asm-buffer (capstone-create-output-buffer (format "*%s-asm*" label)))
+                      ;; use section provide address only if no user override
+                      (start (if (= start 0) base start)))
+                 (capstone-disasm-buffer raw-buffer arch mode start asm-buffer)
+                 (with-current-buffer asm-buffer
+                   (goto-char (point-min)))
+                 (switch-to-buffer asm-buffer)
+                 (setf (nth i sections) (make-struct-capstone-binfmt-section
+                                         :label label
+                                         :base start ; relocate section as per user spec if needed
+                                         :size size
+                                         :raw raw-buffer
+                                         :asm asm-buffer
+                                         :notes notes)))
+               (setq i (+ i 1)))
+             sections)))) ;; eval through to our now processed sections
+    ;; do any further processing on the sections here
+    (when toggle-hexl
+      (dolist (section processed-sections)
+        (let ((raw (struct-capstone-binfmt-section-raw section)))
+          (capstone-toggle-hexl raw))))
     ))
 
 ;;; convenience wrappers, these are subject to change ...
