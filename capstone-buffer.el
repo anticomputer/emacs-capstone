@@ -24,6 +24,8 @@
 
 ;;; Code:
 
+(require 'cl)
+
 (defun capstone-file-to-vector (file)
   "Transform a _SMALL_ binary FILE into a vector of bytes"
   (assert (stringp file))
@@ -88,5 +90,13 @@
     (setq buffer-read-only nil)
     (insert (format "%s\n" line))
     (setq buffer-read-only t)))
+
+(defun capstone-toggle-hexl (buffer)
+  "Toggle a buffer to/from hexl mode"
+  (assert (bufferp buffer))
+  (with-current-buffer buffer
+    (cl-letf (((symbol-function 'yes-or-no-p) #'(lambda (p) t))
+              ((symbol-function 'y-or-n-p) #'(lambda (p) t)))
+      (hexl-mode))))
 
 (provide 'capstone-buffer)

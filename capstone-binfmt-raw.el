@@ -26,7 +26,7 @@
 
 (require 'capstone-binfmt-common)
 
-(defun capstone-parse-raw (file)
+(defun capstone-pull-sections-raw (file)
   "Return a list of capstone sections for raw binary FILE"
   (let* ((section-list nil)
          (section-count 0)
