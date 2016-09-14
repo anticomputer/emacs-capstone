@@ -22,7 +22,7 @@
 int plugin_is_GPL_compatible;
 
 /* memory management*/
-#define _CS_GREF(a) env->make_global_ref(env, a)
+#define _CS_GREF(a)      env->make_global_ref(env, a)
 #define _CS_FREE_GREF(g) env->free_global_ref(env, g)
 
 /* function registration */
@@ -40,27 +40,27 @@ int plugin_is_GPL_compatible;
 #define _CS_NIL() _CS_INTERN("nil")
 
 /* type conversions */
-#define _CS_TYPE(val) env->type_of(env, val)
-#define _CS_NOT_NIL(val) env->is_not_nil(env, val)
-#define _CS_EQ(a, b) env->eq(env, a, b)
-#define _CS_INT(val) env->make_integer(env, val)
-#define _CS_PULL_INT(val) env->extract_integer(env, val)
-#define _CS_FLOAT(val) env->make_float(env, val)
-#define _CS_PULL_FLOAT(val) env->extract_float(env, val)
-#define _CS_STRING(s, len) env->make_string(env, s, len)
+#define _CS_TYPE(val)                  env->type_of(env, val)
+#define _CS_NOT_NIL(val)               env->is_not_nil(env, val)
+#define _CS_EQ(a, b)                   env->eq(env, a, b)
+#define _CS_INT(val)                   env->make_integer(env, val)
+#define _CS_PULL_INT(val)              env->extract_integer(env, val)
+#define _CS_FLOAT(val)                 env->make_float(env, val)
+#define _CS_PULL_FLOAT(val)            env->extract_float(env, val)
+#define _CS_STRING(s, len)             env->make_string(env, s, len)
 #define _CS_PULL_STRING(src, dst, len) env->copy_string_contents(env, src, dst, len)
 
 /* vector functions */
-#define _CS_VEC_SIZE(vec) env->vec_size(env, vec)
-#define _CS_VEC_GET(vec, i) env->vec_get(env, vec, i)
-#define _CS_VEC_SET(vec, i, val) env->vec_set(env, vec, i, val)
+#define _CS_VEC_SIZE(vec)              env->vec_size(env, vec)
+#define _CS_VEC_GET(vec, i)            env->vec_get(env, vec, i)
+#define _CS_VEC_SET(vec, i, val)       env->vec_set(env, vec, i, val)
 
 /* embedded pointers */
-#define _CS_UPTR(fin, ptr) env->make_user_ptr(env, fin, ptr)
-#define _CS_UPTR_GET(uptr) env->get_user_ptr(env, uptr)
-#define _CS_UPTR_SET(uptr, ptr) env->set_user_ptr(env, uptr, ptr)
-#define _CS_UFIN_GET(uptr) env->get_user_finalizer(env, uptr)
-#define _CS_UFIN_SET(uptr, fin) env->set_user_finalizer(env, uptr, fin)
+#define _CS_UPTR(fin, ptr)             env->make_user_ptr(env, fin, ptr)
+#define _CS_UPTR_GET(uptr)             env->get_user_ptr(env, uptr)
+#define _CS_UPTR_SET(uptr, ptr)        env->set_user_ptr(env, uptr, ptr)
+#define _CS_UFIN_GET(uptr)             env->get_user_finalizer(env, uptr)
+#define _CS_UFIN_SET(uptr, fin)        env->set_user_finalizer(env, uptr, fin)
 
     
 static emacs_value
