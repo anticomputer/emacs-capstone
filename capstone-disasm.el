@@ -96,7 +96,8 @@
                       input-buffer offset
                       max-opcode-width)))
           ;; disassemble for 1 instruction at a time
-          (let* ((insn (capstone-with-disasm
+          (let* ((disas nil)
+                 (insn (capstone-with-disasm
                         (disas
                          (capstone-vector-from-buffer
                           input-buffer
