@@ -96,24 +96,23 @@
                       input-buffer offset
                       max-opcode-width)))
           ;; disassemble for 1 instruction at a time
-          (let* ((disas nil)
-                 (insn (capstone-with-disasm
-                        (disas
-                         (capstone-vector-from-buffer
-                          input-buffer
-                          offset max-opcode-width)
-                         start
-                         1
-                         arch
-                         mode
-                         keep-handle)
-                        ;; BODY start
-                        (if disas
-                            (let* ((insn (capstone-insn (car disas))))
-                              insn)
-                          nil)
-                        ;; BODY end
-                        )))
+          (let ((insn (capstone-with-disasm
+                       (disas
+                        (capstone-vector-from-buffer
+                         input-buffer
+                         offset max-opcode-width)
+                        start
+                        1
+                        arch
+                        mode
+                        keep-handle)
+                       ;; BODY start
+                       (if disas
+                           (let* ((insn (capstone-insn (car disas))))
+                             insn)
+                         nil)
+                       ;; BODY end
+                       )))
             ;; outside of macro ... should prolly make an extract macro too
             (if insn
                 (let* ((size (struct-capstone-insn-size insn))
