@@ -61,7 +61,7 @@
                             ,arch (capstone-last-error ,handle))
                    (unless ,keep-handle
                      (capstone-close ,handle)))
-               (message "capstoned-disasm %s failed, invalid handle"))
+               (message "capstone-disasm %s failed, invalid handle" ,arch))
              nil)
          (progn
            (unless ,keep-handle
@@ -98,9 +98,7 @@
           ;; disassemble for 1 instruction at a time
           (let ((insn (capstone-with-disasm
                        (disas
-                        (capstone-vector-from-buffer
-                         input-buffer
-                         offset max-opcode-width)
+                        code
                         start
                         1
                         arch
