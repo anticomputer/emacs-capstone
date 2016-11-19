@@ -29,6 +29,7 @@
 (require 'capstone-binfmt)  ; binfmt parsing backend
 
 ;;; our main disasm functions
+(require 'cl)
 
 (defmacro* capstone-with-disasm ((disas-sym code start count arch mode keep-handle)
                                  &body body)
