@@ -5,7 +5,7 @@
    disassembly engine (http://www.capstone-engine.org). Hopefully you'll find
    use for it in your travels.
 
-   - bas@collarchoke.org 09/04/2016
+   - bas@mokusatsu.org 09/04/2016
 
    TODO: implement the cs detail API for more in depth code analysis support
 

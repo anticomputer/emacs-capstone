@@ -2,7 +2,7 @@
 
 ;; Copyright (C) 2016  Bas Alberts
 
-;; Author: Bas Alberts <bas@collarchoke.org>
+;; Author: Bas Alberts <bas@mokusatsu.org>
 ;; Keywords: convenience
 
 ;; This program is free software; you can redistribute it and/or modify
