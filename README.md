@@ -1,3 +1,5 @@
+NOTE: These bindings are only captstone 3.x compatible for now until I find some time to port to the 4.x branch
+
 # emacs-capstone
 
 This is a set of elisp bindings for the capstone dissassembly library[1].
