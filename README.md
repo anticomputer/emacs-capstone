@@ -1,4 +1,4 @@
-NOTE: These bindings are only captstone 3.x compatible for now until I find some time to port to the 4.x branch
+NOTE: These bindings are only captstone 3.x compatible for now until I find some time to port to the 4.x branch, see: https://github.com/aquynh/capstone/issues/1315
 
 # emacs-capstone
 
