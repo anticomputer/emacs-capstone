@@ -28,12 +28,13 @@
 (require 'capstone-binfmt-raw)
 
 (defmacro* capstone-with-sections ((sections file fmt) &body body)
-  `(assert (file-exists-p file))
-  `(assert (symbolp sections))
-  `(assert (symbolp fmt))
-  `(let* ((,sections (ecase ,fmt
-                       (:raw (capstone-pull-sections-raw ,file))
-                       )))
-     ,@body))
+  `(progn
+     (assert (file-exists-p file))
+     (assert (symbolp sections))
+     (assert (symbolp fmt))
+     (let* ((,sections (ecase ,fmt
+                         (:raw (capstone-pull-sections-raw ,file))
+                         )))
+       ,@body)))
 
 (provide 'capstone-binfmt)

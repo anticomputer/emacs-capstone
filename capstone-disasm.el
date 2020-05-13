@@ -39,37 +39,38 @@
   (let ((handle (gensym "handle"))
         (disas (gensym "disas")))
 
-    ;; 11:15, restate my assumptions
-    `(assert (symbolp disas-sym))
-    `(assert (vectorp code))
-    `(assert (integerp start))
-    `(assert (integerp count))
-    `(assert (symbolp arch))
-    `(assert (integerp mode))
-    `(when keep-handle
-       (assert (integerp keep-handle)))
+    `(progn
+       ;; 11:15, restate my assumptions
+       (assert (symbolp disas-sym))
+       (assert (vectorp code))
+       (assert (integerp start))
+       (assert (integerp count))
+       (assert (symbolp arch))
+       (assert (integerp mode))
+       (when keep-handle
+         (assert (integerp keep-handle)))
 
-    `(let* ((,handle (or ,keep-handle (capstone-open-arch ,arch ,mode)))
-            (,disas (if ,handle
-                        (capstone-disasm ,handle ,code ,start ,count)
-                      nil)))
-       ;; handle fail or no results
-       (if (not ,disas)
+       (let* ((,handle (or ,keep-handle (capstone-open-arch ,arch ,mode)))
+              (,disas (if ,handle
+                          (capstone-disasm ,handle ,code ,start ,count)
+                        nil)))
+         ;; handle fail or no results
+         (if (not ,disas)
+             (progn
+               (if ,handle
+                   (progn
+                     (message "capstone-disasm %s (no results), last error: %s"
+                              ,arch (capstone-last-error ,handle))
+                     (unless ,keep-handle
+                       (capstone-close ,handle)))
+                 (message "capstone-disasm %s failed, invalid handle" ,arch))
+               nil)
            (progn
-             (if ,handle
-                 (progn
-                   (message "capstone-disasm %s (no results), last error: %s"
-                            ,arch (capstone-last-error ,handle))
-                   (unless ,keep-handle
-                     (capstone-close ,handle)))
-               (message "capstone-disasm %s failed, invalid handle" ,arch))
-             nil)
-         (progn
-           (unless ,keep-handle
-             (capstone-close ,handle))
-           (let ((,disas-sym ,disas))
-             ,@body))) ; keep last eval of BODY as result eval
-       )))
+             (unless ,keep-handle
+               (capstone-close ,handle))
+             (let ((,disas-sym ,disas))
+               ,@body))) ; keep last eval of BODY as result eval
+         ))))
 
 (defun capstone-disasm-buffer (input-buffer arch mode start &optional output-buffer)
   "disasm buffer INPUT-BUFFER as ARCH in MODE instructions at START address, optionally output results OUTPUT-BUFFER"
